@@ -1,0 +1,16 @@
+Either something is missing, or the "new" run_command doesn't work on Cygwin
+
+--- origsrc/scl-utils-2.0.2/src/fallback.c	2017-08-25 03:23:02.000000000 -0500
++++ src/scl-utils-2.0.2/src/fallback.c	2019-01-04 03:13:41.551757800 -0600
+@@ -27,7 +27,11 @@ bool has_old_collection(char * const col
+         module_file_link = _free(module_file_link);
+         colnames++;
+     }
++#ifdef __CYGWIN__
++    return true;
++#else
+     return false;
++#endif
+ }
+ 
+ scl_rc fallback_get_enabled_collections(char ***_enabled_collections)

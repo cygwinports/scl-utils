@@ -1,0 +1,11 @@
+--- origsrc/scl-utils-2.0.2/shell/scl-init.sh	2017-08-25 03:23:02.000000000 -0500
++++ src/scl-utils-2.0.2/shell/scl-init.sh	2019-01-04 01:06:21.600585900 -0600
+@@ -9,7 +9,7 @@ else
+ fi
+ }
+ 
+-shell=`/bin/basename \`/bin/ps -p $$ -ocomm=\``
++shell=`/bin/basename \`/bin/procps -p $$ -ocomm=\``
+ [ "$shell" = "bash" ] && export -f scl # export -f works only in bash
+ 
+ MODULESHOME=/usr/share/Modules

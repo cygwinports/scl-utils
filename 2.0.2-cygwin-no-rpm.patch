@@ -1,0 +1,79 @@
+--- origsrc/scl-utils-2.0.2/CMakeLists.txt	2017-08-25 03:23:02.000000000 -0500
++++ src/scl-utils-2.0.2/CMakeLists.txt	2019-01-03 22:40:55.267578100 -0600
+@@ -30,11 +30,13 @@ SET(CPACK_SOURCE_PACKAGE_FILE_NAME ${scl
+ 
+ INCLUDE(CPack)
+ 
++if(NOT CYGWIN)
+ INSTALL(FILES rpm/macros.scl DESTINATION /etc/rpm)
+ INSTALL(FILES rpm/scl.attr DESTINATION /usr/lib/rpm/fileattrs)
+ INSTALL(FILES rpm/sclbuild.attr DESTINATION /usr/lib/rpm/fileattrs)
+ FILE(GLOB rpmHelpers "rpm/brp-scl-*")
+ INSTALL(PROGRAMS ${rpmHelpers} rpm/scldeps.sh DESTINATION /usr/lib/rpm)
++endif()
+ 
+ INSTALL(FILES doc/scl.1 DESTINATION share/man/man1)
+ INSTALL(PROGRAMS shell/scl_enabled DESTINATION /usr/bin)
+--- origsrc/scl-utils-2.0.2/src/CMakeLists.txt	2017-08-25 03:23:02.000000000 -0500
++++ src/scl-utils-2.0.2/src/CMakeLists.txt	2019-01-03 22:43:14.722656200 -0600
+@@ -13,6 +13,8 @@ INSTALL(TARGETS scl RUNTIME DESTINATION
+ FILE(GLOB helpers "helpers/*")
+ INSTALL(PROGRAMS ${helpers} DESTINATION bin)
+ 
++if(NOT CYGWIN)
+ link_directories (/lib64/)
+ target_link_libraries (scl librpm.so)
+ target_link_libraries (scl librpmio.so)
++endif()
+--- origsrc/scl-utils-2.0.2/src/scllib.c	2017-08-25 03:23:02.000000000 -0500
++++ src/scl-utils-2.0.2/src/scllib.c	2019-01-03 22:46:43.819335900 -0600
+@@ -4,11 +4,13 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ #include <sys/wait.h>
++#ifndef __CYGWIN__
+ #include <rpm/rpmlib.h>
+ #include <rpm/rpmts.h>
+ #include <rpm/rpmdb.h>
+ #include <rpm/rpmmacro.h>
+ #include <rpm/rpmcli.h>
++#endif
+ #include <errno.h>
+ #include <wordexp.h>
+ 
+@@ -353,6 +355,9 @@ exit:
+ 
+ scl_rc list_packages_in_collection(const char *colname, char ***_pkgnames)
+ {
++#ifdef __CYGWIN__
++    return ENOSYS;
++#else
+     char **srpms, **rpms;
+     int srpms_allocated = 10, rpms_allocated = 10;
+     int srpms_count = 0, rpms_count = 0;
+@@ -424,6 +429,7 @@ scl_rc list_packages_in_collection(const
+ 
+     *_pkgnames = rpms;
+     return ret;
++#endif
+ }
+ 
+ static scl_rc run_scriptlet(const char *program_dir, const char *program_name)
+@@ -557,6 +563,9 @@ exit:
+ 
+ static scl_rc owned_by_package(const char *file_path, bool *_owned)
+ {
++#ifdef __CYGWIN__
++    return ENOSYS;
++#else
+     rpmts ts;
+     rpmdbMatchIterator mi;
+     scl_rc ret = EOK;
+@@ -575,6 +584,7 @@ static scl_rc owned_by_package(const cha
+     ts = rpmtsFree(ts);
+ 
+     return ret;
++#endif
+ }
+ 
+ scl_rc deregister_collection(const char *colname, bool force)

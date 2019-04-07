@@ -1,0 +1,25 @@
+inherit cmake
+
+NAME="scl-utils"
+VERSION=2.0.2
+RELEASE=1
+CATEGORY="Utils"
+SUMMARY="Software Collection utilities"
+DESCRIPTION=
+HOMEPAGE="https://github.com/sclorg/scl-utils"
+SRC_URI="${HOMEPAGE}/archive/${VERSION}/scl-utils-${VERSION}.tar.gz"
+PATCH_URI="
+	2.0.2-cygwin-no-rpm.patch
+	2.0.2-cygwin-procps.patch
+	2.0.2-cygwin-fallback.patch
+"
+
+REQUIRES="modules procps-ng"
+
+src_install() {
+	cd ${B}
+	ninja_install
+
+	keepdir /etc/scl/modulefiles /etc/scl/prefixes
+	dosym prefixes /etc/scl/conf
+}
